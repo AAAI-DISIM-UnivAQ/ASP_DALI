@@ -1,0 +1,106 @@
+body {
+    color: rgb(119,119,119);
+      background: rgb(233,233,233);
+}
+
+#header {
+    position: fixed;
+    top: 0;
+    height: 35px;
+    width: 100%;
+    font-size: 22px;
+    color: rgb(219, 219, 219);
+    background: #33393d;
+    border-top: 3px solid rgb(191,103,92);
+    border-bottom: 1px solid black;
+    padding-left: 20px;
+    padding-right: 20px;
+    z-index: 11;
+}
+#header .left {
+  float: left;
+  height: 30px;
+  color: rgb(217, 0, 0);
+}
+#header .right {
+  float: right;
+}
+#header img {
+  height: 25px;
+  vertical-align: sub;
+}
+
+
+#container {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 10;
+}
+
+
+
+#container #sidebar {
+    width: 25%;
+    height: 100%;
+    float: left;
+    background: #33393d;
+    color: #f3f3f3;
+    padding-top: 40px;
+}
+#container #sidebar .titleSidebar{
+    padding: 0px 15px 19px;
+}
+#container #sidebar .titleSidebar h2{
+    font-size: 25px;
+}
+#container #sidebar form{
+    margin: 0 5%;
+    
+}
+
+
+
+
+
+#container #content {
+    margin-left: 25%;
+    margin-top: 35px;
+    width: 75%;
+    height: 100%;
+}
+#container #content .headerContent{
+    border-bottom: 1px solid #ddd;
+    background: #eee;
+}
+#container #content .headerContent h2{
+    font-size: 25px;
+    margin: 20px 0px 20px 20px;
+    display: inline-block;
+}
+#container #content .bodyContent{
+    margin: 0 2%;
+    padding: 2% 0;
+    overflow: auto;
+    height: 92.5%;
+}
+#container #content .bodyContent ul{
+    color: rgb(139, 139, 139);
+    list-style-type: none;
+    padding: 0;
+}
+#container #content .bodyContent ul li{
+    position: relative;
+    font-size: 14px;
+    background: white;
+    border-left: 3px solid rgb(214, 95, 80);
+    margin-bottom: 5px;
+    box-shadow: 1px 1px rgba(100,100,100,0.6);
+    padding: 10px 18px;
+}
+#container #content .bodyContent ul li > div{
+}
+#container #content .bodyContent ul li > div span{
+    font-weight: bold;
+    color: rgb(103, 103, 103);
+}

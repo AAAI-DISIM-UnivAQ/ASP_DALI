@@ -1,0 +1,132 @@
+body {
+    color: rgb(119,119,119);
+      background: rgb(233,233,233);
+}
+body * {
+    -webkit-user-select: none;
+}
+
+#header {
+    position: fixed;
+    top: 0;
+    height: 40px;
+    width: 100%;
+    font-size: 24px;
+    color: rgb(219, 219, 219);
+    background: #33393d;
+    border-top: 3px solid rgb(191,103,92);
+    border-bottom: 1px solid black;
+    padding-left: 20px;
+    padding-right: 20px;
+    z-index: 11;
+}
+#header .left {
+  float: left;
+  height: 30px;
+  color: #D1d1d1;
+}
+#header .right {
+  float: right;
+}
+#header img {
+  height: 25px;
+  vertical-align: sub;
+}
+#container {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    z-index: 10;
+    padding-top: 40px;
+}
+#console{
+    width: 100%;
+    background-color: white;
+    position: absolute;
+    bottom: 0;
+    border-top: 2px inset rgb(51, 51, 51);
+}
+#consolebar{
+    position: absolute;    top: 0;    left: 0;
+    height: 2em;
+    width: 100%;
+    background-color: #d1d1d1;
+    border-bottom: 2px inset #333333;
+}
+#consolebar .buttonConsole{
+    float: right;
+    
+    height: 26px;
+    width: 26px;
+    font-size: 18px;
+    line-height: 26px;
+    text-align: center;
+    margin-right: 10px;
+}
+#consolebar .buttonConsole i{
+    
+}
+#consolebar .consoletab {
+    height: 100%;
+    float: left;
+    display: inline-block;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 0 0.3em;
+    background-color: rgba(237, 237, 237,0.4);
+    border-right: 2px inset #333333;
+}
+#content {
+    position: absolute;
+    top: 40px;
+    width: 100%;
+}
+#chessboard {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    /* margin-left: 10%; */
+}
+#chessboard canvas {
+    border: 3px solid rgb(51, 51, 51);
+    margin: auto;
+    display: block;    
+}
+#consoletext {
+    height: 100%;
+    width: 100%;
+    padding-top: 2.5em;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    overflow: scroll;
+}
+#consoletext *{
+    -webkit-user-select: initial;
+}
+#consoletext p:hover{
+    background: rgba(33, 33, 33, 0.1);
+}
+#consoletext p:before{
+    content : '>';
+    
+    margin-right: 5px;
+}
+#sizeForm {
+    position: absolute;
+    width: 20%;
+    top: 10px;
+    left: 10px;
+    padding: 10px;
+    border: 2px inset;
+}
+#sizeForm select {
+    margin: 10%;
+    width: 80%;
+}
+#sizeForm button {
+    width: 80%;
+    margin: 10% 10% 0;
+}
+.both {
+    clear: both;
+}

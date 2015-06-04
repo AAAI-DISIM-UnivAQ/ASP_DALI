@@ -1,0 +1,59 @@
+% Knight Tour
+
+% Input:
+% - size(N), if the chessboard is NxN
+% - givenmove(X1,Y1,X2,Y2), if the knight must move from X1,Y1 to X2,Y2.
+
+% Output:
+% - move(X1,Y1,X2,Y2), if the knight moves from X1,Y1 to X2,Y2.
+
+% givenmove(1,1,2,3).
+
+#maxint = 99999.
+
+% There is no tour for a NxN chessboard where N is odd.
+even :- size(N), #int(X), N = X+X.
+:- not even.
+
+% There is no tour for a NxN chessboard where N is lesser than 6.
+:- size(N), N < 6.
+
+% Compute the cells of the chessboard.
+row_col(X) :- #int(X), X >= 1, X <= N, size(N), even.
+cell(X,Y) :- row_col(X), row_col(Y).
+
+% Given moves must be done.
+% move(X1,Y1,X2,Y2) :- givenmove(X1,Y1,X2,Y2).
+
+% Guess the other moves.
+move(X1,Y1,X2,Y2) v non_move(X1,Y1,X2,Y2):-  valid(X1,Y1,X2,Y2).
+
+% Compute the valid moves from each cell.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X1 = X2+2, Y1 = Y2+1.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X1 = X2+2, Y2 = Y1+1.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X2 = X1+2, Y1 = Y2+1.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X2 = X1+2, Y2 = Y1+1.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X1 = X2+1, Y1 = Y2+2.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X1 = X2+1, Y2 = Y1+2.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X2 = X1+1, Y1 = Y2+2.
+valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X2 = X1+1, Y2 = Y1+2.
+
+% Exactly one move entering to each cell.
+:- cell(X,Y), size(N), not #count{X1,Y1 : move(X,Y,X1,Y1)} = 1.
+
+% Exactly one move leaving each cell.
+:- cell(X,Y), size(N), not #count{X1,Y1 : move(X1,Y1,X,Y)} = 1.
+
+% Each forbidden cell must remain unreached.
+:- forbidden(X,Y), reached(X,Y).
+
+% Each cell must be reached by the knight.
+reached(X,Y) :- move(1,1,X,Y).
+reached(X2,Y2) :- reached(X1,Y1), move(X1,Y1,X2,Y2).
+:~ cell(X,Y), not forbidden(X,Y), not reached(X,Y).
+
+coverage(95).
+
+cov(N) :- N <= #count{X,Y : reached(X,Y)} <= M, size(V), coverage(Z),
+		M = V * V, N2 = M * Z, N = N2 /100.
+

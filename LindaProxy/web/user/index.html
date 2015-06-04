@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Linda Interface</title>
+        <link rel="shortcut icon" href="img/logo.png"/>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link href="libs/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
+        <link href="libs/human/themes/flatty.css" rel="stylesheet" type="text/css"/>
+        <link href="libs/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+        <link href="css/style.css" rel="stylesheet" type="text/css"/>
+        
+        <script src="libs/jquery/jquery.js" type="text/javascript"></script>
+        <script src="libs/underscore/underscore.js" type="text/javascript"></script>
+        <script src="libs/human/js/humane.min.js" type="text/javascript"></script>
+        <script src="js/index.js" type="text/javascript"></script>
+        <script src="js/lindaReverseValidator.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div id="header">
+            <div class="left"><img src="img/logo.png" alt=""></div>
+            <!--<div class="right"><i class="fa fa-power-off"></i></div>-->
+        </div>
+        <div id="container">
+            <div id="sidebar">
+                <div class="titleSidebar">
+                    <h2>Invia un messaggio</h2>
+                </div>
+                <form>
+                    <div class="form-group">
+                        <label for="mittente">Mittente</label>
+                        <input id="mittente" type="text" class="form-control" placeholder="mittente"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="destinatario">Destinatario</label>
+                        <input id="destinatario" type="text" class="form-control" placeholder="destinatario"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="funzione">Funzione</label>
+                        <select id="funzione" class="form-control">
+                            <option value="send_message">send_message</option>
+                            <option value="confirm">confirm</option>
+                            <option value="disconfirm">disconfirm</option>
+                            <option value="inform">inform</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="messaggio">Messaggio</label>
+                        <input id="messaggio" type="text" class="form-control" placeholder="messaggio"/>
+                    </div>
+                    <a id="sendButton" class="btn btn-default">Invia</a>
+                    <a id="resetButton" class="btn btn-default">Reset</a>
+                </form>
+            </div>
+            <div id="content">
+                <div class="headerContent">
+                    <h2>Storico Messaggi</h2>
+                </div>
+                <div class="bodyContent">
+                    <ul id="storicoList">
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
