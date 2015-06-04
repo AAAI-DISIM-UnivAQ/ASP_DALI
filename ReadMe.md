@@ -8,3 +8,5 @@ A case study applied to the [Knight's Tour Problem](http://en.wikipedia.org/wiki
 If you user this code, please cite us in your work:
 
 * Costantini S., De Gasperis G, Nazzicone G. _Exploration of Unknown Territory via DALI Agents and ASP Modules_. Distributed Computing and Artificial Intelligence, 12th International Conference, pp 285-292, 3-4 June 2015, Salamanca, ES, Springer
+
+Note: all of the third parties opensource libraries used on the web interface have to be installed separately.
