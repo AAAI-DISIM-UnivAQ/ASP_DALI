@@ -3,6 +3,7 @@
 % Input:
 % - size(N), if the chessboard is NxN
 % - givenmove(X1,Y1,X2,Y2), if the knight must move from X1,Y1 to X2,Y2.
+% - must_reach(X,Y), the cell must be present in the path.
 
 % Output:
 % - move(X1,Y1,X2,Y2), if the knight moves from X1,Y1 to X2,Y2.
@@ -46,6 +47,9 @@ valid(X1,Y1,X2,Y2) :- cell(X1,Y1), cell(X2,Y2), X2 = X1+1, Y2 = Y1+2.
 
 % Each forbidden cell must remain unreached.
 :- forbidden(X,Y), reached(X,Y).
+
+% There are cell must reached.
+:- must_reach(X,Y), not reached(X,Y).
 
 % Each cell must be reached by the knight.
 reached(X,Y) :- move(1,1,X,Y).

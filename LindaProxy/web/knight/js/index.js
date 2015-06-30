@@ -28,6 +28,17 @@ $(function() {
         slider.slider("value", this.selectedIndex + 1);
         mpixi.drowChessboard(parseInt(select[0].options[select[0].selectedIndex].value));
     });
+
+    $(".markerBox").on('click', function(e) {
+        $target = $(e.target);
+        $(".markerBox").removeClass('active');
+        $target.addClass('active');
+        if ($target.hasClass('markerHole')) {
+            mpixi.action = mpixi.constant.ACTION_HOLE;
+        } else {
+            mpixi.action = mpixi.constant.ACTION_MARK;
+        }
+    });
     
     $("#resetChessboard").on('click', function() {
         select[ 0 ].selectedIndex = 0;
@@ -55,7 +66,17 @@ $(function() {
                 y:forb.y + 1
             })
         }
-        console.log(newForbidden);
+
+        var mandatory = mpixi.mandatory;
+        var newMandatory = [];
+        for (var i in mandatory) {
+            var mark = mandatory[i];
+
+            newMandatory.push({
+                x:mark.x + 1,
+                y:mark.y + 1
+            })
+        }
         $.ajax({
             type: 'POST',
             url : "http://localhost:8888/api/plan",
@@ -63,14 +84,9 @@ $(function() {
             data : JSON.stringify({
                 size : size,
                 forbidden : newForbidden,
+                mandatory : newMandatory,
                 identifier : socket.identifier
-            }),
-            success: function (data, textStatus, jqXHR) {
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                
-            }
+            })
         })
     });
     

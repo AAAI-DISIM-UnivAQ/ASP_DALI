@@ -3,13 +3,19 @@ var MYPIXI = function(container) {
     var _container = container;
     var instance = this.instance = this;
 
+    this.constant = {}
+    this.constant.ACTION_HOLE = "hole"
+    this.constant.ACTION_MARK = "mark"
+
     this.forbidden = [];
+    this.mandatory = [];
+    this.action = 'hole'
 
     this.createRenderer = function() {
         var renderer = PIXI.autoDetectRenderer(_container.innerWidth(),
                 _container.innerHeight(),
                 {backgroundColor: 0x333333});
-//0x1099bb
+        // 0x1099bb
         renderer.view.id = "canvas";
 
         _container[0].appendChild(renderer.view);
@@ -52,7 +58,8 @@ var MYPIXI = function(container) {
     this.drowChessboard = function(size) {
         this.cleanStage();
         this.forbidden = [];
-        
+        this.mandatory = [];
+
         var cellSize = Math.min((instance.renderer.height / size),
                 (instance.renderer.width / size));
 //        var borderSize = cellSize / 11;
@@ -118,6 +125,22 @@ var MYPIXI = function(container) {
             }
         }
         instance.forbidden = newForbidden;
+
+        var newMandatory = [];
+        for (i in instance.mandatory) {
+            var mark = instance.mandatory[i];
+            if (mark.x < instance.size, mark.y < instance.size) {
+                var newX = (instance.mandatory[i].x * instance.cellSize) + (instance.cellSize / 2);
+                var newY = (instance.mandatory[i].y * instance.cellSize) + (instance.cellSize / 2);
+
+                this.addMark({
+                    x: (newX + instance.borderSize),
+                    y: (newY + instance.borderSize)
+                });
+                newMandatory.push(mark);
+            }
+        }
+        instance.mandatory = newMandatory;
         
         this.adjustSize({
             width: borderFill.width,
@@ -165,23 +188,54 @@ var MYPIXI = function(container) {
 
         instance.stage.addChild(this.hole);
     };
+    this.addMark = function(position) {
+        console.log('addMark');
+        this.mark = new PIXI.Graphics();
+        this.mark.beginFill(0xFFEA00);
+        this.mark.drawCircle(0, 0, instance.cellSize / 3);
+        this.mark.endFill();
+
+        this.mark.interactive = true;
+        this.mark
+                .on('mousedown', instance.removeCell)
+                .on('touchstart', instance.removeCell);
+
+        this.mark.position.x = position.x;
+        this.mark.position.y = position.y;
+
+        instance.stage.addChild(this.mark);
+    };
 
     this.onDragStart = function(event) {
         this.data = event.data;
         this.dragging = true;
 
         var position = this.data.getLocalPosition(this);
+        if (instance.action == instance.constant.ACTION_HOLE){
+            (instance.addHole).bind(this)(position);
+        } else {
+            (instance.addMark).bind(this)(position);
+        }
 
-        (instance.addHole).bind(this)(position);
     };
 
     this.onDragEnd = function() {
         if (this.dragging) {
             this.dragging = false;
 
+            var marker = {};
+            var instanceMarker = [];
+            if (instance.action == instance.constant.ACTION_HOLE){
+                marker = this.hole;
+                instanceMarker = instance.forbidden;
+            } else {
+                marker = this.mark;
+                instanceMarker = instance.mandatory;
+            }
+
             var position = this.data.getLocalPosition(this);
             if (this.outside) {
-                position = this.hole.position;
+                position = marker.position;
                 delete this.outside;
             }
 
@@ -191,22 +245,28 @@ var MYPIXI = function(container) {
             };
 
             var isin = false;
-            for (x in instance.forbidden) {
+            for (var x in instance.forbidden) {
                 var cells = instance.forbidden[x];
+                if (cells.x === cell.x && cells.y === cell.y) {
+                    isin = true;
+                    break;
+                }
+            }for (var x in instance.mandatory) {
+                var cells = instance.mandatory[x];
                 if (cells.x === cell.x && cells.y === cell.y) {
                     isin = true;
                     break;
                 }
             }
             if (!isin && !( cell.x == 0 && cell.y == 0) ) {
-                instance.forbidden.push(cell);
+                instanceMarker.push(cell);
                 var newX = (cell.x * instance.cellSize) + (instance.cellSize / 2);
                 var newY = (cell.y * instance.cellSize) + (instance.cellSize / 2);
 
-                this.hole.position.x = newX + instance.borderSize;
-                this.hole.position.y = newY + instance.borderSize;
+                marker.position.x = newX + instance.borderSize;
+                marker.position.y = newY + instance.borderSize;
             } else {
-                this.hole.parent.removeChild(this.hole);
+                marker.parent.removeChild(marker);
             }
 
             this.data = null;
@@ -215,6 +275,12 @@ var MYPIXI = function(container) {
 
     this.onDragMove = function() {
         if (this.dragging) {
+            var marker = {};
+            if (instance.action == instance.constant.ACTION_HOLE){
+                marker = this.hole;
+            } else {
+                marker = this.mark;
+            }
             var position = this.data.getLocalPosition(this);
             var radius = instance.radius;
             var pos1 = {x : position.x + radius, y: position.y + radius };
@@ -225,13 +291,13 @@ var MYPIXI = function(container) {
                 instance.chessboard.containsPoint(pos2) &&
                 instance.chessboard.containsPoint(pos3) &&
                 instance.chessboard.containsPoint(pos4) && true) {
-                this.hole.position.x = position.x;
-                this.hole.position.y = position.y;
+                marker.position.x = position.x;
+                marker.position.y = position.y;
                 this.outside = false;
             } else {
                 var bounds = instance.chessboard.innerBounds;
-                this.hole.position.x = position.x > bounds.x ? Math.min(position.x, bounds.width + bounds.x): bounds.x;
-                this.hole.position.y = position.y > bounds.y ? Math.min(position.y, bounds.height + bounds.y): bounds.y;
+                marker.position.x = position.x > bounds.x ? Math.min(position.x, bounds.width + bounds.x): bounds.x;
+                marker.position.y = position.y > bounds.y ? Math.min(position.y, bounds.height + bounds.y): bounds.y;
                 this.outside = true;
             }
         }
@@ -248,6 +314,13 @@ var MYPIXI = function(container) {
             var cells = instance.forbidden[x];
             if (cells.x === cell.x && cells.y === cell.y) {
                 instance.forbidden.splice(x, 1);
+                break;
+            }
+        }
+        for (x in instance.mandatory) {
+            var cells = instance.mandatory[x];
+            if (cells.x === cell.x && cells.y === cell.y) {
+                instance.mandatory.splice(x, 1);
                 break;
             }
         }
@@ -270,7 +343,7 @@ var MYPIXI = function(container) {
                     instance.moveHorse(movimenti);
                 }
             }
-        }, 400);
+        }, 200);
     };
     this.drawLineHorse = function(point1, point2) {
         var center = this.cellSize/2;

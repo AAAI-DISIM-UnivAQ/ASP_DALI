@@ -25,9 +25,9 @@ import tornado.ioloop
 import tornado.web
 import os
 import time
+import select
 
 import tornado.platform.twisted
-
 tornado.platform.twisted.install()
 
 from twisted.internet import protocol, reactor
@@ -50,8 +50,11 @@ def createmessage(sender, destination, typefunc, message):
                                                                  typefunc, message, sender)
     return m
 
+system_connection = {}
+
 
 class WSHandler(tornado.websocket.WebSocketHandler):
+
     def check_origin(self, origin):
         return True
 
@@ -78,6 +81,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         sock.send(wrm)
         self.sendConsoleMessage('System Ready')
 
+    def on_message(self, message):
+        print message
+        jsonmessage = json.loads(message)
+        # print jsonmessage
+        #
+        # m = createmessage(jsonmessage['sender'], jsonmessage['destination'], jsonmessage['typefunc'], jsonmessage['message'])
+        # print m
+        # wrm = write_message(m)
+        # print 'message received %s' % message
+        # print wrm
+        # sock.send(wrm)
+
+        # self.write_message(wrm)
+
     def on_close(self):
         print 'connection closed'
         system_connection.pop(self.identifier)
@@ -102,12 +119,15 @@ class PlanHandler(tornado.web.RequestHandler):
     def post(self):
         identifier = self.json_args.get('identifier')
         forbidden = self.json_args.get('forbidden')
+        mandatory = self.json_args.get('mandatory')
         size = self.json_args.get('size')
 
         f = open('dlvprogram/instance.dl', 'w')
         f.write('size(%s). ' % size)
         for forb in forbidden:
             f.write("forbidden(%s,%s). " % (forb.get('x'), forb.get('y')))
+        for mark in mandatory:
+            f.write("must_reach(%s,%s). " % (mark.get('x'), mark.get('y')))
         f.close()
 
         m = "instanceReady(%s, %s)" % (size, len(forbidden))
@@ -171,8 +191,10 @@ class DALI(protocol.Protocol):
                     system_connection[self.identifier].sendConsoleMessage(
                         'Hamiltonian Tour Problem has found a solution')
                 elif self.currentproblem == 2:
-                    system_connection[self.identifier].sendConsoleMessage(
-                        'Weak Constraint Problem has found a solution')
+                    system_connection[self.identifier].sendConsoleMessage('Weak Constraint Problem has found a solution')
+                elif self.currentproblem == 3:
+                    system_connection[self.identifier].sendConsoleMessage('With Blank Problem has found a solution')
+
                 message = 'new_moves_for_evaluate(%s)' % len(temporaryresult)
                 m = createmessage('user', 'agente1', 'send_message', message)
                 wrm = write_message(m)
@@ -224,16 +246,21 @@ class DALI(protocol.Protocol):
             elif cmd == 'ss2':
                 self.makePlan(2)
                 system_connection[identifier].sendConsoleMessage('Testing problem Weak Constraint')
+            elif cmd == 'ss3':
+                system_connection[identifier].sendConsoleMessage('Trivial Solution')
+            elif cmd == 'ss4':
+                self.makePlan(3)
+                system_connection[identifier].sendConsoleMessage('Testing problem must reach')
             elif cmd == 'pf1':
                 system_connection[identifier].sendConsoleMessage('Hamiltonian Tour Failed')
             elif cmd == 'pf2':
                 system_connection[identifier].sendConsoleMessage('Weak Constraint Failed')
-            elif cmd == 'rs':
-                system_connection[identifier].sendConsoleMessage('State of agent: 0')
-            elif cmd == 'ss3':
-                system_connection[identifier].sendConsoleMessage('Trivial Solution')
+            elif cmd == 'pf3':
+                system_connection[identifier].sendConsoleMessage('Blank Failed')
             elif cmd == 'pft':
                 system_connection[identifier].sendConsoleMessage('Weak Constraint is not optimal')
+            elif cmd == 'rs':
+                system_connection[identifier].sendConsoleMessage('State of agent: 0')
             elif cmd == 'smr':
                 for mv in temporaryresult:
                     mv = mv[5:-1]
@@ -254,6 +281,7 @@ class DALIFactory(protocol.Factory):
 
 
 if __name__ == "__main__":
+    print 'http://localhost:8888/knight/index.html'
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(8888)
     reactor.listenTCP(3333, DALIFactory())

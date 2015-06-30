@@ -127,6 +127,33 @@ body * {
     width: 80%;
     margin: 10% 10% 0;
 }
+
+.markerContainer{
+width: 100%;
+}
+.markerInContainer{
+height: 100%;
+width: 50%;
+margin: 4em auto;
+}
+.markerBox{
+display: inline-block;
+border-radius: 50%;
+width: 4em;
+height: 4em;
+}
+.markerBox.active {
+    -webkit-box-shadow: 0px 0px 7px 5px rgba(24,102,24,1);
+    -moz-box-shadow: 0px 0px 7px 5px rgba(24,102,24,1);
+    box-shadow: 0px 0px 7px 5px rgba(24,102,24,1);
+}
+.markerMark {
+background: #FFEA00;
+}
+.markerHole {
+    background: black;
+}
+
 .both {
     clear: both;
 }

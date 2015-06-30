@@ -1,4 +1,6 @@
-:- use_module('webutil.pl').
+:- use_module(library(sockets)),
+   use_module(library(random3)),
+   use_module(library(lists)).
 
 :-dynamic current_identifier/1.
 :-dynamic current_size/1.
@@ -9,7 +11,34 @@
 :-dynamic move_to_evaluate/4.
 :-dynamic trivial_reached/2.
 
+
 system_state(0).
+
+net_ip(localhost).
+net_port(3333).
+
+open_web_socket(Stream):- net_ip(IP), net_port(PORT), socket_client_open(IP:PORT, Stream, [type(text)]).
+close_web_socket(Stream):- close(Stream).
+
+ack:- agent(M), open_web_socket(Stream),
+                write(Stream,M), write(Stream,'_.._'),
+                current_identifier(Identifier),
+                write(Stream,Identifier),
+                close_web_socket(Stream).
+
+sendData(X) :- agent(M), open_web_socket(Stream),
+               write(Stream,M), write(Stream,'_.._'),
+               current_identifier(Identifier),
+               write(Stream,Identifier), write(Stream,'_.._'),
+               write(Stream,X),
+               close_web_socket(Stream).
+sendData(X, Y) :- agent(M), open_web_socket(Stream),
+               write(Stream,M), write(Stream,'_.._'),
+               current_identifier(Identifier),
+               write(Stream,Identifier), write(Stream,'_.._'),
+               write(Stream,X), write(Stream,'_.._'),
+               write(Stream,Y),
+               close_web_socket(Stream).
 
 
 save_forbidden([]).
@@ -50,6 +79,11 @@ select_element(Goal, [Head | Tail], Current, FinalSelected) :- call(Goal, Head, 
     select_element(Goal, Tail, Selected, FinalSelected).
 
 longest_cicle(LongestCicle):- findall(L1,searchCicles(L1), Cicles), select_element(get_longer_list, Cicles, LongestCicle).
+
+shuffle(InList, OutList) :- length(InList,N), randseq(N, N, X), 
+                shuffling(X, InList, OutList).
+shuffling([],_,[]):-true.
+shuffling([H|T],InList,[V|T2]):- nth1(H, InList, V), shuffling(T, InList, T2).
 
 sendPath:- agent(M), open_web_socket(Stream),
 						write(Stream,M), write(Stream,'_.._'),
@@ -93,11 +127,13 @@ problem_failedE(Problem):- send_failed(Problem), S1 is Problem+1, launch_instanc
 
 send_failed(1):-sendData('pf1').
 send_failed(2):-sendData('pf2').
-send_failed(3):-sendData('pft').
+send_failed(3):-sendData('pf3').
+send_failed(4):-sendData('pft').
 
 launch_instance(1):-sendData('ss1').
 launch_instance(2):-sendData('ss2').
-launch_instance(3):-write('trivial path'), nl, sendData('ss3'), send_trivial_path.
+launch_instance(3):-sendData('ss4').
+launch_instance(4):-write('trivial path'), nl, sendData('ss3'), send_trivial_path.
 
 new_moves_for_evaluateE(NumberOfMoves):> write('Number of moves '), write(NumberOfMoves), nl, retractall(size_move_to_evaluate(_)), retractall(move_to_evaluate(_,_,_,_)), assert(size_move_to_evaluate(NumberOfMoves)), next_state, sendData('smr').
 moves_for_evaluateE(Move):- save_move_to_evaluate(Move), write(.).
@@ -122,7 +158,7 @@ send_trivial_path:- agent(M), open_web_socket(Stream),
            write(Stream, ']}'), 
            close_web_socket(Stream).
 
-trivial_next(X,Y, Stream):- trivial_search_next(X,Y,L), trivial_select_next(L,X1,Y1), assert(trivial_reached(X1,Y1)),
+trivial_next(X,Y, Stream):- trivial_search_next(X,Y,L), shuffle(L, LShuffle), trivial_select_next(LShuffle,X1,Y1), assert(trivial_reached(X1,Y1)),
                     format(Stream, ',{"x":"~d","y":"~d"}', [X1, Y1]), trivial_next(X1,Y1, Stream).
 trivial_next(X,Y, Stream):-true.
 
