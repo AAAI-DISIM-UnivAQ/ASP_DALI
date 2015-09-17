@@ -32,6 +32,9 @@ tornado.platform.twisted.install()
 
 from twisted.internet import protocol, reactor
 
+AG_COORDINATOR = 'agCoordinator'
+AG_METAPLANNER = 'agMetaPlanner'
+
 # localmachine = socket.gethostname().lower()
 localmachine = 'localhost'
 sock = socket.socket()
@@ -76,7 +79,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print 'new connection'
         self.identifier = str(int(time.time()))
         system_connection[self.identifier] = self
-        m = createmessage('user', 'agente1', 'send_message', "new_connection(%s)" % self.identifier)
+        m = createmessage('user', AG_COORDINATOR, 'send_message', "new_connection(%s)" % self.identifier)
         wrm = write_message(m)
         sock.send(wrm)
         self.sendConsoleMessage('System Ready')
@@ -131,14 +134,14 @@ class PlanHandler(tornado.web.RequestHandler):
         f.close()
 
         m = "instanceReady(%s, %s)" % (size, len(forbidden))
-        m = createmessage('user', 'agente1', 'send_message', m)
+        m = createmessage('user', AG_COORDINATOR, 'send_message', m)
         wrm = write_message(m)
         sock.send(wrm)
         time.sleep(0.2)
 
         for forb in forbidden:
             mess = "forbidden_of_problem([%s,%s])" % (forb.get('x'), forb.get('y'))
-            m = createmessage('user', 'agente1', 'send_message', mess)
+            m = createmessage('user', AG_COORDINATOR, 'send_message', mess)
             wrm = write_message(m)
             sock.send(wrm)
             time.sleep(0.2)
@@ -156,7 +159,7 @@ class ResetHandler(tornado.web.RequestHandler):
 
     def post(self):
         identifier = self.json_args.get('identifier')
-        m = createmessage('user', 'agente1', 'send_message', "new_connection(%s)" % identifier)
+        m = createmessage('user', AG_COORDINATOR, 'send_message', "new_connection(%s)" % identifier)
         wrm = write_message(m)
         sock.send(wrm)
 
@@ -176,7 +179,7 @@ class DALI(protocol.Protocol):
 
     def notifyFailure(self):
         message = 'problem_failed(%s)' % self.currentproblem
-        m = createmessage('user', 'agente1', 'send_message', message)
+        m = createmessage('user', AG_METAPLANNER, 'send_message', message)
         wrm = write_message(m)
         sock.send(wrm)
 
@@ -196,7 +199,7 @@ class DALI(protocol.Protocol):
                     system_connection[self.identifier].sendConsoleMessage('With Blank Problem has found a solution')
 
                 message = 'new_moves_for_evaluate(%s)' % len(temporaryresult)
-                m = createmessage('user', 'agente1', 'send_message', message)
+                m = createmessage('user', AG_METAPLANNER, 'send_message', message)
                 wrm = write_message(m)
                 sock.send(wrm)
                 system_connection[self.identifier].sendConsoleMessage('Plan sent to MAS')
@@ -266,7 +269,7 @@ class DALI(protocol.Protocol):
                     mv = mv[5:-1]
                     x1, y1, x2, y2 = mv.split(',')
                     message = 'moves_for_evaluate([%s,%s,%s,%s])' % (x1, y1, x2, y2)
-                    m = createmessage('user', 'agente1', 'send_message', message)
+                    m = createmessage('user', AG_METAPLANNER, 'send_message', message)
                     wrm = write_message(m)
                     sock.send(wrm)
                     time.sleep(0.2)
