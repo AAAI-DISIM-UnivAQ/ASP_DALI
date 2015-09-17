@@ -1,0 +1,3 @@
+[submodule "mas/types"]
+	path = mas/types
+	url = http://github.com/AAAI-DISIM-UnivAQ/KTP_DMAS
